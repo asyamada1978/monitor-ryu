@@ -100,21 +100,7 @@ footer{color:var(--muted);font-family:var(--mono);font-size:11px;text-align:cent
 </style>
 </head>
 <body>
-<div id="gate" class="grid-bg scan">
-  <div class="gatebox bracket"><span class="bl"></span><span class="br"></span>
-    <div style="color:var(--amber);display:flex;justify-content:center">
-      <svg class="cross" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><line x1="12" y1="1" x2="12" y2="7"/><line x1="12" y1="17" x2="12" y2="23"/><line x1="1" y1="12" x2="7" y2="12"/><line x1="17" y1="12" x2="23" y2="12"/></svg>
-    </div>
-    <div class="mono stencil" style="color:var(--muted);font-size:11px;margin-top:12px">// acesso restrito · offline</div>
-    <div class="title" style="font-size:24px;margin-top:4px">Monitor de Vagas <b>Ryu</b></div>
-    <input id="pw" type="password" placeholder="SENHA" autofocus autocapitalize="none" autocorrect="off" autocomplete="off" spellcheck="false" inputmode="text" />
-    <label style="display:flex;gap:6px;align-items:center;justify-content:center;color:var(--muted);font-family:var(--mono);font-size:11px;margin-top:10px;cursor:pointer"><input type="checkbox" id="showpw" style="width:auto;margin:0"> mostrar senha</label>
-    <div id="pwerr" class="err hidden">// senha incorreta</div>
-    <button id="pwbtn">Conectar</button>
-  </div>
-</div>
-
-<div id="app" class="hidden"></div>
+<div id="app"></div>
 
 <script>
 /* ===== SENHA ===== */
@@ -259,24 +245,8 @@ function bind(){
  document.querySelectorAll("select[data-id]").forEach(function(s){s.onchange=function(){state.statuses[this.getAttribute("data-id")]=this.value;save("ryu:statuses",state.statuses);render();};});
 }
 
-/* ===== GATE ===== */
-function unlock(){document.getElementById("gate").classList.add("hidden");document.getElementById("app").classList.remove("hidden");render();}
-function ssGet(k){try{return sessionStorage.getItem(k);}catch(e){return null;}}
-function ssSet(k,v){try{sessionStorage.setItem(k,v);}catch(e){}}
-function tryPw(){
-  var raw=document.getElementById("pw").value||"";
-  var v=raw.trim();
-  var ok = !PASSCODE || v===PASSCODE
-        || v.toLowerCase()===PASSCODE.toLowerCase()
-        || v.replace(/\s+/g,"")===PASSCODE;
-  if(ok){ssSet("ryu:ok","1");unlock();}
-  else{document.getElementById("pwerr").classList.remove("hidden");}
-}
-document.getElementById("pwbtn").onclick=tryPw;
-var _sp=document.getElementById("showpw"); if(_sp)_sp.onchange=function(){var p=document.getElementById("pw");p.type=this.checked?"text":"password";p.focus();};
-document.getElementById("pw").addEventListener("input",function(){document.getElementById("pwerr").classList.add("hidden");});
-document.getElementById("pw").addEventListener("keydown",function(e){if(e.key==="Enter"){e.preventDefault();tryPw();}});
-if(!PASSCODE||ssGet("ryu:ok")==="1"){unlock();}
+/* ===== BOOT (sem senha) ===== */
+render();
 </script>
 </body>
 </html>
