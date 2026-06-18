@@ -165,15 +165,24 @@ function weekLabel(){var d=new Date();function p(n){return(""+n).padStart(2,"0")
 function crossSVG(s){return '<svg class="cross" style="width:'+s+'px;height:'+s+'px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><line x1="12" y1="1" x2="12" y2="7"/><line x1="12" y1="17" x2="12" y2="23"/><line x1="1" y1="12" x2="7" y2="12"/><line x1="17" y1="12" x2="23" y2="12"/></svg>';}
 function extSVG(){return '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>';}
 
+var LIVE = [];      /* vagas vindas do radar (jobs.json) */
+var UPDATED = "";   /* data da ultima atualizacao do radar */
+function allJobs(){
+  var seen={}, out=[];
+  JOBS.forEach(function(j){ seen[j.link]=1; out.push(j); });
+  LIVE.forEach(function(j){ if(j&&j.link&&!seen[j.link]){ seen[j.link]=1; out.push(j); } });
+  return out;
+}
+
 function counts(){var c={"Estágio":0,"Júnior":0,"Trainee":0,cand:0};
- JOBS.forEach(function(j){c[j.tipo]++; if(stat(j.id)==="A candidatar")c.cand++;});return c;}
+ allJobs().forEach(function(j){c[j.tipo]=(c[j.tipo]||0)+1; if(stat(j.id)==="A candidatar")c.cand++;});return c;}
 
 function filtered(){var q=state.query.trim().toLowerCase();
- return JOBS.filter(function(j){
+ return allJobs().filter(function(j){
    if(state.tipo!=="Todos"&&j.tipo!==state.tipo)return false;
    if(state.onlyStar&&!j.star)return false;
    if(!q)return true;
-   return (j.empresa+" "+j.vaga+" "+j.area+" "+j.local).toLowerCase().indexOf(q)>=0;});}
+   return (j.empresa+" "+j.vaga+" "+(j.area||"")+" "+j.local).toLowerCase().indexOf(q)>=0;});}
 
 function fitMeter(fit){var lvl=FITLVL[fit]||0,h="";for(var i=1;i<=3;i++)h+='<span class="seg'+(i<=lvl?' on':'')+'"></span>';
  return '<span class="fitm">'+h+' <span style="color:var(--amber);font-family:var(--mono);font-size:10px" class="stencil">'+esc(fit)+'</span></span>';}
@@ -214,7 +223,7 @@ function render(){
  +stat4(c["Trainee"],"Elite","trainee · alvo 2028","var(--danger)","")
  +stat4(c.cand,"Em mira","a candidatar / semana","var(--radar)","$")
  +'</div>'
- +'<div class="syncline">// modo offline — lista base curada · status salvos neste dispositivo</div>'
+ +'<div class="syncline">'+(UPDATED&&LIVE.length ? '// radar sincronizado em '+UPDATED+' — '+LIVE.length+' vagas novas · status salvos neste dispositivo' : '// lista base ativa — o radar publica vagas novas semanalmente · status salvos neste dispositivo')+'</div>'
  +'</div></header>'
  +'<main class="wrap">'
  +'<section class="card bracket"><span class="bl"></span><span class="br"></span>'
@@ -247,6 +256,11 @@ function bind(){
 
 /* ===== BOOT (sem senha) ===== */
 render();
+/* busca as vagas do radar (jobs.json) e atualiza o painel sozinho */
+fetch("./jobs.json?ts="+Date.now(),{cache:"no-store"})
+  .then(function(r){return r.ok?r.json():null;})
+  .then(function(d){ if(d&&d.jobs&&d.jobs.length){ LIVE=d.jobs; UPDATED=d.updated_at||""; render(); } })
+  .catch(function(){});
 </script>
 </body>
 </html>
