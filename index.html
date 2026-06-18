@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Monitor de Vagas Ryu — Offline</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='6' fill='none' stroke='%23f0a92b' stroke-width='4'/><line x1='50' y1='8' x2='50' y2='30' stroke='%23f0a92b' stroke-width='4'/><line x1='50' y1='70' x2='50' y2='92' stroke='%23f0a92b' stroke-width='4'/><line x1='8' y1='50' x2='30' y2='50' stroke='%23f0a92b' stroke-width='4'/><line x1='70' y1='50' x2='92' y2='50' stroke='%23f0a92b' stroke-width='4'/></svg>">
+<style>
+:root{--ink:#0B0D10;--panel:#13171D;--panel2:#1A1F27;--line:#2B313B;--amber:#F0A92B;--amber2:#FFC65A;
+--radar:#A6C53C;--danger:#D9483B;--steel:#5BC0CE;--muted:#8A93A2;--txt:#D7DCE3;
+--mono:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
+--disp:"Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif;}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--ink);color:var(--txt);font-family:var(--disp)}
+a{color:inherit;text-decoration:none}
+.stencil{text-transform:uppercase;letter-spacing:.12em}
+.mono{font-family:var(--mono)}
+.grid-bg{background-image:linear-gradient(rgba(43,49,59,.35) 1px,transparent 1px),linear-gradient(90deg,rgba(43,49,59,.35) 1px,transparent 1px);background-size:34px 34px}
+.scan{background-image:repeating-linear-gradient(0deg,rgba(255,255,255,.025) 0 1px,transparent 1px 3px)}
+.wrap{max-width:920px;margin:0 auto;padding:0 18px}
+.bracket{position:relative}
+.bracket::before,.bracket::after,.bracket>.bl,.bracket>.br{content:"";position:absolute;width:12px;height:12px;border-color:rgba(240,169,43,.6);border-style:solid;pointer-events:none}
+.bracket::before{top:-1px;left:-1px;border-width:2px 0 0 2px}
+.bracket::after{top:-1px;right:-1px;border-width:2px 2px 0 0}
+.bracket>.bl{bottom:-1px;left:-1px;border-width:0 0 2px 2px}
+.bracket>.br{bottom:-1px;right:-1px;border-width:0 2px 2px 0}
+header{position:relative;border-bottom:1px solid var(--line);overflow:hidden}
+header .fade{position:absolute;inset:0;background:linear-gradient(180deg,transparent,var(--ink))}
+.hud{position:relative;z-index:1;padding:26px 0}
+.cross{width:28px;height:28px;flex:0 0 auto}
+.title{font-size:clamp(26px,5vw,40px);font-weight:800;color:#fff;line-height:1}
+.title b{color:var(--amber)}
+.sub{color:var(--muted);font-size:13px;margin-top:8px}
+.weekbox{position:relative;background:var(--panel2);border:1px solid var(--line);padding:8px 12px;color:var(--amber);font-family:var(--mono);font-size:14px}
+.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:18px}
+@media(min-width:640px){.stats{grid-template-columns:repeat(4,1fr)}}
+.stat{position:relative;background:var(--panel2);border:1px solid var(--line);padding:10px 12px}
+.stat .v{font-family:var(--mono);font-size:30px;line-height:1}
+.stat .l{color:#fff;font-size:12px;margin-top:4px}
+.stat .s{color:var(--muted);font-size:10px;font-family:var(--mono)}
+.syncline{margin-top:12px;color:var(--muted);font-size:11px;font-family:var(--mono)}
+main{padding:24px 0}
+section{margin-bottom:22px}
+.card{position:relative;background:var(--panel);border:1px solid var(--line)}
+.card .hd{padding:16px 18px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap}
+.h2{color:#fff;font-size:20px;font-weight:800}
+.muted{color:var(--muted)}
+.fs13{font-size:13px}
+.badge{font-family:var(--mono);font-size:11px;border:1px solid rgba(240,169,43,.4);color:var(--amber);padding:4px 8px}
+.lg{display:grid;grid-template-columns:1fr;gap:14px;padding:18px}
+@media(min-width:640px){.lg{grid-template-columns:repeat(3,1fr)}}
+.bay{position:relative;background:var(--panel2);border:1px solid var(--line);padding:14px;display:flex;flex-direction:column}
+.bay h3{color:#fff;font-size:14px;font-weight:700}
+.bayhd{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.ic{width:32px;height:32px;border:1px solid;display:grid;place-items:center}
+.lnk{display:flex;justify-content:space-between;align-items:center;font-family:var(--mono);font-size:14px;background:var(--ink);border:1px solid var(--line);padding:8px 12px;margin-top:8px;transition:.15s}
+.lnk:hover{border-color:var(--amber);color:var(--amber)}
+.obj{position:relative;background:var(--panel2);border:1px solid var(--line);padding:14px;margin:0 18px 18px}
+.objrow{display:flex;align-items:center;gap:10px;font-family:var(--mono);font-size:14px;padding:4px 0;cursor:pointer;user-select:none}
+.chk{width:16px;height:16px;border:1px solid var(--line);display:grid;place-items:center;flex:0 0 auto;color:transparent}
+.chk.on{background:var(--radar);border-color:var(--radar);color:var(--ink)}
+.done{color:var(--muted);text-decoration:line-through}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.search{position:relative;flex:1;min-width:200px}
+.search input{width:100%;background:var(--panel);border:1px solid var(--line);color:#fff;font-family:var(--mono);font-size:14px;padding:10px 12px 10px 36px}
+.search input:focus{outline:none;border-color:var(--amber)}
+.search svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--muted)}
+.chip{font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;padding:6px 12px;border:1px solid var(--line);background:var(--panel);color:var(--muted);cursor:pointer;transition:.15s}
+.chip:hover{border-color:var(--amber);color:var(--amber)}
+.chip.on{background:var(--amber);color:var(--ink);border-color:var(--amber)}
+.chip.star{color:var(--radar);border-color:rgba(166,197,60,.4)}
+.chip.star.on{background:var(--radar);color:var(--ink);border-color:var(--radar)}
+.job{position:relative;background:var(--panel);border:1px solid var(--line);padding:18px;margin-bottom:12px;transition:.15s}
+.job:hover{border-color:rgba(240,169,43,.5)}
+.spine{position:absolute;left:0;top:0;height:100%;width:4px}
+.jobtop{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.tags{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:6px}
+.tag{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.1em;padding:2px 8px;border:1px solid}
+.emp{color:#fff;font-size:18px;font-weight:800;text-transform:uppercase;letter-spacing:.04em}
+.vg{color:var(--txt);font-size:14px;margin-top:2px}
+.meta{display:flex;gap:12px;flex-wrap:wrap;color:var(--muted);font-family:var(--mono);font-size:11px;margin-top:8px;text-transform:uppercase;letter-spacing:.06em}
+.engage{display:inline-flex;align-items:center;gap:6px;background:var(--amber);color:var(--ink);font-weight:800;text-transform:uppercase;letter-spacing:.08em;font-size:14px;padding:8px 12px;flex:0 0 auto;transition:.15s;clip-path:polygon(0 0,100% 0,100% 70%,92% 100%,0 100%)}
+.engage:hover{background:var(--amber2)}
+.why{color:#9aa3b2;font-size:14px;font-family:var(--mono);line-height:1.5;margin-top:12px}
+.jobbtm{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
+.fitm{display:inline-flex;gap:2px;align-items:center}
+.seg{width:12px;height:6px;background:var(--line)}.seg.on{background:var(--amber)}
+select{font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.06em;background:var(--panel2);color:var(--txt);border:1px solid var(--line);padding:6px 8px;cursor:pointer}
+select:focus{outline:none;border-color:var(--amber)}
+footer{color:var(--muted);font-family:var(--mono);font-size:11px;text-align:center;text-transform:uppercase;letter-spacing:.1em;line-height:1.8;padding:8px 0 40px}
+/* gate */
+#gate{min-height:100vh;display:grid;place-items:center;padding:20px}
+.gatebox{position:relative;background:var(--panel);border:1px solid var(--line);max-width:360px;width:100%;padding:28px;text-align:center;box-shadow:0 0 0 1px rgba(240,169,43,.25),0 0 22px -6px rgba(240,169,43,.35)}
+.gatebox input{margin-top:18px;width:100%;background:var(--ink);border:1px solid var(--line);color:#fff;font-family:var(--mono);letter-spacing:.2em;text-align:center;padding:12px}
+.gatebox input:focus{outline:none;border-color:var(--amber)}
+.gatebox button{margin-top:16px;width:100%;background:var(--amber);color:var(--ink);font-weight:800;text-transform:uppercase;letter-spacing:.12em;border:0;padding:12px;cursor:pointer;clip-path:polygon(0 0,100% 0,100% 70%,92% 100%,0 100%)}
+.gatebox button:hover{background:var(--amber2)}
+.err{color:var(--danger);font-family:var(--mono);font-size:12px;margin-top:8px;text-transform:uppercase}
+.hidden{display:none}
+</style>
+</head>
+<body>
+<div id="gate" class="grid-bg scan">
+  <div class="gatebox bracket"><span class="bl"></span><span class="br"></span>
+    <div style="color:var(--amber);display:flex;justify-content:center">
+      <svg class="cross" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><line x1="12" y1="1" x2="12" y2="7"/><line x1="12" y1="17" x2="12" y2="23"/><line x1="1" y1="12" x2="7" y2="12"/><line x1="17" y1="12" x2="23" y2="12"/></svg>
+    </div>
+    <div class="mono stencil" style="color:var(--muted);font-size:11px;margin-top:12px">// acesso restrito · offline</div>
+    <div class="title" style="font-size:24px;margin-top:4px">Monitor de Vagas <b>Ryu</b></div>
+    <input id="pw" type="password" placeholder="SENHA" autofocus autocapitalize="none" autocorrect="off" autocomplete="off" spellcheck="false" inputmode="text" />
+    <label style="display:flex;gap:6px;align-items:center;justify-content:center;color:var(--muted);font-family:var(--mono);font-size:11px;margin-top:10px;cursor:pointer"><input type="checkbox" id="showpw" style="width:auto;margin:0"> mostrar senha</label>
+    <div id="pwerr" class="err hidden">// senha incorreta</div>
+    <button id="pwbtn">Conectar</button>
+  </div>
+</div>
+
+<div id="app" class="hidden"></div>
+
+<script>
+/* ===== SENHA ===== */
+var PASSCODE = ""; /* sem senha */
+
+/* ===== DADOS ===== */
+var JOBS = [
+ {id:"abbott",tipo:"Estágio",empresa:"Abbott Laboratories",vaga:"Estágio em Planejamento e Análise Financeira (FP&A) — Eletrofisiologia",area:"FP&A",local:"São Paulo · Híbrido",fit:"Alto",elig:"Elegível (cursando)",why:"Farma/dispositivos médicos = mesmo setor da Ferring. Currículo transfere direto.",prazo:"Verificar no link",link:"https://br.indeed.com/q-est%C3%A1gio-fp&a-l-s%C3%A3o-paulo,-sp-vagas.html",def:"A candidatar",star:true},
+ {id:"fleury",tipo:"Estágio",empresa:"Grupo Fleury",vaga:"Programa de Estágio 2026 — Planejamento Financeiro / Inteligência de Negócios",area:"FP&A · BI",local:"São Paulo",fit:"Alto",elig:"Elegível (cursando)",why:"Saúde + viés de BI casa com o Power BI dele. Programa estruturado.",prazo:"Edital 2026",link:"https://www.glassdoor.com.br/Vaga/s%C3%A3o-paulo-estagi%C3%A1rio-financeiro-vagas-SRCH_IL.0,9_IC2479061_KO10,31.htm",def:"A candidatar",star:true},
+ {id:"rumo",tipo:"Estágio",empresa:"Rumo Logística",vaga:"Estágio em FP&A (Planejamento Financeiro)",area:"FP&A",local:"São Paulo",fit:"Alto",elig:"Elegível (cursando)",why:"Modelos financeiros e reports mensais. Encaixa com budget/forecast.",prazo:"Verificar no link",link:"https://br.indeed.com/q-est%C3%A1gio-fp&a-l-s%C3%A3o-paulo,-sp-vagas.html",def:"A candidatar",star:true},
+ {id:"topico",tipo:"Estágio",empresa:"Tópico (via Bettha)",vaga:"Estágio em FP&A — Análises e Estratégia Financeira",area:"FP&A",local:"Embu das Artes · Híbrido",fit:"Médio-Alto",elig:"Elegível (cursando)",why:"Power BI citado como diferencial — ponto forte dele.",prazo:"Verificar no link",link:"https://br.indeed.com/q-est%C3%A1gio-fp&a-l-s%C3%A3o-paulo,-sp-vagas.html",def:"A pesquisar"},
+ {id:"bioglycols",tipo:"Estágio",empresa:"BIOGLYCOLS and Services",vaga:"Estagiário de Finanças (FP&A e Tesouraria)",area:"FP&A · Tesouraria",local:"São Paulo",fit:"Médio",elig:"Elegível (cursando)",why:"Abre também tesouraria; experiência de crédito ajuda.",prazo:"Verificar no link",link:"https://br.indeed.com/q-est%C3%A1gio-fp&a-l-s%C3%A3o-paulo,-sp-vagas.html",def:"A pesquisar"},
+ {id:"boticario",tipo:"Júnior",empresa:"Grupo Boticário",vaga:"Analista FP&A I (temporária / remota)",area:"FP&A",local:"Remoto",fit:"Médio-Alto",elig:"Confirmar (cursando?)",why:"Temporária + remota costuma ser mais flexível com diploma. Vale tentar.",prazo:"Verificar no link",link:"https://br.indeed.com/q-analista-planejamento-financeiro-fp&a-vagas.html",def:"A pesquisar"},
+ {id:"comgas",tipo:"Júnior",empresa:"Comgás",vaga:"Analista Financeiro JR (FP&A)",area:"FP&A",local:"São Paulo",fit:"Médio-Alto",elig:"Confirmar (pede formado?)",why:"Ciclo completo de Budget, Forecast e Long Range Plan (DRE).",prazo:"Verificar no link",link:"https://br.indeed.com/q-analista-planejamento-financeiro-fp&a-vagas.html",def:"A pesquisar"},
+ {id:"elo",tipo:"Júnior",empresa:"Elo (pagamentos)",vaga:"Analista de Planejamento Financeiro Júnior (FP&A)",area:"FP&A",local:"Barueri",fit:"Médio",elig:"Confirmar (pede formado?)",why:"Fechamento contábil e análise de DRE gerencial. Existe versão afirmativa PcD.",prazo:"Verificar no link",link:"https://vempraelo.gupy.io/",def:"A pesquisar"},
+ {id:"b3",tipo:"Júnior",empresa:"B3 (Bolsa do Brasil)",vaga:"Analista Financeiro Júnior (Faturamento)",area:"Financeiro",local:"São Paulo",fit:"Médio",elig:"Provável formação completa",why:"Relatórios de cobrança, conciliação, KPIs. Pede SAP. Marca forte.",prazo:"Verificar no link",link:"https://vagas.b3.com.br/job/S%C3%A3o-Paulo-7469-Analista-Financeiro-J%C3%BAnior-S%C3%A3o/1331745262/",def:"A pesquisar"},
+ {id:"ipiranga",tipo:"Júnior",empresa:"Ipiranga",vaga:"Analista Jr — suporte FP&A / Custos",area:"FP&A · Custos",local:"São Paulo",fit:"Médio",elig:"Confirmar (pede formado?)",why:"Suporte a FP&A para projeções e pricing — casa com a análise de ASP.",prazo:"Verificar no link",link:"https://br.indeed.com/q-analista-fp&a-jr-l-s%C3%A3o-paulo,-sp-vagas.html",def:"A pesquisar"},
+ {id:"roberthalf",tipo:"Júnior",empresa:"Via Robert Half",vaga:"Analista Planejamento Financeiro Jr / FP&A (Life Sciences)",area:"FP&A",local:"São Paulo",fit:"Médio",elig:"Pede formação completa",why:"Recrutadora com várias vagas Jr (uma é farma). Cadastrar currículo.",prazo:"Contínuo",link:"https://www.roberthalf.com/br/pt/vagas/sao-paulo/analista-financeiro-junior",def:"A pesquisar"},
+ {id:"itau",tipo:"Trainee",empresa:"Itaú Unibanco",vaga:"Trainee — Trilha Finanças (FP&A, Controladoria, Eng. de Dados)",area:"FP&A · Controladoria",local:"São Paulo",fit:"Alto",elig:"Só após formar (2028)",why:"Trilha de Finanças exige inglês avançado (ele tem C2). Melhor alvo de trainee.",prazo:"Acompanhar edital",link:"https://traineeitauunibanco.com.br/",def:"Acompanhar (futuro)"},
+ {id:"nestle",tipo:"Trainee",empresa:"Nestlé",vaga:"Programa Trainee — Trilha Finanças",area:"FP&A · Controladoria",local:"São Paulo · Brasil",fit:"Alto",elig:"Só após formar (2028)",why:"Rotação por FP&A, Controladoria, Tax e Tesouraria em multinacional.",prazo:"Acompanhar edital",link:"https://www.nestlecomvoce.com.br/programadetrainee",def:"Acompanhar (futuro)"},
+ {id:"santander",tipo:"Trainee",empresa:"Santander",vaga:"Graduate / Futuros Talentos (finanças)",area:"Finanças",local:"São Paulo · Brasil",fit:"Médio-Alto",elig:"Só após formar (2028)",why:"Banco global; trilhas variadas em finanças.",prazo:"Acompanhar editais",link:"https://sejatrainee.com.br/trainee/",def:"Acompanhar (futuro)"}
+];
+var LAUNCHERS = [
+ {grupo:"Estágio · FP&A",accent:"#F0A92B",links:[
+  {site:"LinkedIn",url:"https://www.linkedin.com/jobs/search/?keywords=est%C3%A1gio%20financeiro%20FP%26A&location=S%C3%A3o%20Paulo%2C%20Brazil&f_TPR=r604800"},
+  {site:"Indeed",url:"https://br.indeed.com/jobs?q=est%C3%A1gio+FP%26A+financeiro&l=S%C3%A3o+Paulo%2C+SP&fromage=7"},
+  {site:"Gupy",url:"https://portal.gupy.io/job-search/term=est%C3%A1gio%20financeiro"},
+  {site:"Glassdoor",url:"https://www.glassdoor.com.br/Vaga/s%C3%A3o-paulo-estagi%C3%A1rio-financeiro-vagas-SRCH_IL.0,9_IC2479061_KO10,31.htm"}]},
+ {grupo:"Júnior · Planejamento",accent:"#5BC0CE",links:[
+  {site:"LinkedIn",url:"https://www.linkedin.com/jobs/search/?keywords=analista%20j%C3%BAnior%20planejamento%20financeiro%20FP%26A&location=S%C3%A3o%20Paulo%2C%20Brazil&f_TPR=r604800"},
+  {site:"Indeed",url:"https://br.indeed.com/jobs?q=analista+j%C3%BAnior+planejamento+financeiro&l=S%C3%A3o+Paulo%2C+SP&fromage=7"},
+  {site:"Gupy",url:"https://portal.gupy.io/job-search/term=analista%20financeiro%20j%C3%BAnior"},
+  {site:"Glassdoor",url:"https://www.glassdoor.com.br/Vaga/s%C3%A3o-paulo-analista-financeiro-j%C3%BAnior-vagas-SRCH_IL.0,9_IC2479061_KO10,36.htm"}]},
+ {grupo:"Trainee · Finanças",accent:"#D9483B",links:[
+  {site:"Seja Trainee",url:"https://sejatrainee.com.br/vagas-de-trainee-com-inscricoes-abertas/"},
+  {site:"LinkedIn",url:"https://www.linkedin.com/jobs/search/?keywords=trainee%20finan%C3%A7as&location=S%C3%A3o%20Paulo%2C%20Brazil&f_TPR=r604800"},
+  {site:"Gupy",url:"https://portal.gupy.io/job-search/term=trainee%20finan%C3%A7as"}]}
+];
+var ROUTINE = [
+ "Rodar os 3 lançadores de busca (Estágio, Júnior, Trainee)",
+ "Abrir vagas novas e marcar status nos cards",
+ "Candidatar nas marcadas como “A candidatar”",
+ "Conferir o portal da Elo (Gupy) e a Robert Half",
+ "Atualizar currículo se surgir requisito recorrente"
+];
+
+var TIPO={ "Estágio":{c:"#F0A92B",label:"RECRUTA"}, "Júnior":{c:"#5BC0CE",label:"OPERADOR"}, "Trainee":{c:"#D9483B",label:"ELITE"} };
+var FITLVL={ "Alto":3,"Médio-Alto":2,"Médio":1 };
+var STATUS_OPTS=["A pesquisar","A candidatar","Candidatado","Em processo","Entrevista","Descartado","Acompanhar (futuro)"];
+
+/* ===== ESTADO ===== */
+function load(k,f){try{var v=localStorage.getItem(k);return v?JSON.parse(v):f;}catch(e){return f;}}
+function save(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
+var defStatuses={}; JOBS.forEach(function(j){defStatuses[j.id]=j.def;});
+var state={ query:"", tipo:"Todos", onlyStar:false,
+  statuses:load("ryu:statuses",defStatuses), routine:load("ryu:routine",ROUTINE.map(function(){return false;})) };
+function stat(id){return state.statuses[id]||"A pesquisar";}
+function weekLabel(){var d=new Date();function p(n){return(""+n).padStart(2,"0");}return p(d.getDate())+"."+p(d.getMonth()+1)+"."+d.getFullYear();}
+
+/* ===== RENDER ===== */
+function crossSVG(s){return '<svg class="cross" style="width:'+s+'px;height:'+s+'px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><line x1="12" y1="1" x2="12" y2="7"/><line x1="12" y1="17" x2="12" y2="23"/><line x1="1" y1="12" x2="7" y2="12"/><line x1="17" y1="12" x2="23" y2="12"/></svg>';}
+function extSVG(){return '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>';}
+
+function counts(){var c={"Estágio":0,"Júnior":0,"Trainee":0,cand:0};
+ JOBS.forEach(function(j){c[j.tipo]++; if(stat(j.id)==="A candidatar")c.cand++;});return c;}
+
+function filtered(){var q=state.query.trim().toLowerCase();
+ return JOBS.filter(function(j){
+   if(state.tipo!=="Todos"&&j.tipo!==state.tipo)return false;
+   if(state.onlyStar&&!j.star)return false;
+   if(!q)return true;
+   return (j.empresa+" "+j.vaga+" "+j.area+" "+j.local).toLowerCase().indexOf(q)>=0;});}
+
+function fitMeter(fit){var lvl=FITLVL[fit]||0,h="";for(var i=1;i<=3;i++)h+='<span class="seg'+(i<=lvl?' on':'')+'"></span>';
+ return '<span class="fitm">'+h+' <span style="color:var(--amber);font-family:var(--mono);font-size:10px" class="stencil">'+esc(fit)+'</span></span>';}
+
+function jobCard(j){var t=TIPO[j.tipo]||{c:"#8A93A2",label:"—"};
+ return '<article class="job"><span class="spine" style="background:'+t.c+'"></span>'
+ +'<div class="jobtop"><div style="min-width:0">'
+ +'<div class="tags"><span class="tag" style="color:'+t.c+';border-color:'+t.c+'66;background:'+t.c+'1a">'+t.label+' · '+esc(j.tipo)+'</span>'+fitMeter(j.fit)+(j.star?' <span style="color:var(--radar);font-family:var(--mono);font-size:10px" class="stencil">★ priori</span>':'')+'</div>'
+ +'<div class="emp">'+esc(j.empresa)+'</div><div class="vg">'+esc(j.vaga)+'</div>'
+ +'<div class="meta"><span>◎ '+esc(j.local)+'</span>'+(j.area?'<span>▣ '+esc(j.area)+'</span>':'')+'<span>⏱ '+esc(j.prazo)+'</span></div>'
+ +'</div><a class="engage" href="'+esc(j.link)+'" target="_blank" rel="noopener noreferrer">Engajar '+extSVG()+'</a></div>'
+ +'<div class="why">'+esc(j.why)+'</div>'
+ +'<div class="jobbtm"><span class="muted mono stencil" style="font-size:11px">⚠ '+esc(j.elig)+'</span>'
+ +'<label class="muted mono stencil" style="font-size:11px;display:flex;gap:8px;align-items:center">Status'
+ +'<select data-id="'+j.id+'">'+STATUS_OPTS.map(function(o){return '<option'+(stat(j.id)===o?' selected':'')+'>'+esc(o)+'</option>';}).join('')+'</select></label></div></article>';}
+
+function render(){
+ var c=counts();
+ var chips=["Todos","Estágio","Júnior","Trainee"].map(function(t){return '<button class="chip'+(state.tipo===t?' on':'')+'" data-tipo="'+t+'">'+t+'</button>';}).join('');
+ var bays=LAUNCHERS.map(function(g){
+   return '<div class="bay bracket"><span class="bl"></span><span class="br"></span><div class="bayhd"><span class="ic" style="color:'+g.accent+';border-color:'+g.accent+'66">'+crossSVG(16)+'</span><h3>'+esc(g.grupo)+'</h3></div>'
+   +g.links.map(function(l){return '<a class="lnk" href="'+esc(l.url)+'" target="_blank" rel="noopener noreferrer"><span>'+esc(l.site)+'</span>'+extSVG()+'</a>';}).join('')+'</div>';}).join('');
+ var done=state.routine.filter(Boolean).length;
+ var objs=ROUTINE.map(function(s,i){return '<div class="objrow" data-obj="'+i+'"><span class="chk'+(state.routine[i]?' on':'')+'"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></span><span class="'+(state.routine[i]?'done':'')+'">'+esc(s)+'</span></div>';}).join('');
+ var list=filtered().map(jobCard).join('')||'<div class="card" style="text-align:center;padding:40px;color:var(--muted)" class="mono">// nenhum alvo com esse filtro</div>';
+
+ document.getElementById("app").innerHTML =
+ '<header class="grid-bg scan"><div class="fade"></div><div class="wrap hud">'
+ +'<div style="display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:flex-start">'
+ +'<div style="display:flex;gap:12px;align-items:flex-start"><span style="color:var(--amber);margin-top:4px">'+crossSVG(28)+'</span>'
+ +'<div><div class="mono stencil" style="color:var(--muted);font-size:11px">// radar tático de oportunidades · offline</div>'
+ +'<div class="title">Monitor de Vagas <b>Ryu</b></div>'
+ +'<div class="sub mono">ECON IBMEC ’28 · Power BI · Python/SQL · Budget &amp; pricing @ Ferring · ENG C2 · SP</div></div></div>'
+ +'<div class="weekbox bracket"><span class="bl"></span><span class="br"></span>'+weekLabel()+'</div></div>'
+ +'<div class="stats">'
+ +stat4(c["Estágio"],"Recrutas","estágio · fit agora","var(--amber)","")
+ +stat4(c["Júnior"],"Operadores","júnior · checar elegib.","var(--steel)","")
+ +stat4(c["Trainee"],"Elite","trainee · alvo 2028","var(--danger)","")
+ +stat4(c.cand,"Em mira","a candidatar / semana","var(--radar)","$")
+ +'</div>'
+ +'<div class="syncline">// modo offline — lista base curada · status salvos neste dispositivo</div>'
+ +'</div></header>'
+ +'<main class="wrap">'
+ +'<section class="card bracket"><span class="bl"></span><span class="br"></span>'
+ +'<div class="hd"><div><div class="h2">Buy Menu · Busca da Semana</div><div class="muted fs13 mono" style="margin-top:2px">1 clique por site = busca pronta (precisa de internet ao abrir o link).</div></div>'
+ +'<span class="badge stencil">'+done+'/'+ROUTINE.length+' objetivos</span></div>'
+ +'<div class="lg">'+bays+'</div>'
+ +'<div class="obj bracket"><span class="bl"></span><span class="br"></span>'
+ +'<div style="display:flex;justify-content:space-between;margin-bottom:8px"><span style="color:#fff;font-weight:700" class="stencil">Objetivos da rodada</span><button id="resetobj" class="muted mono stencil" style="background:0;border:0;cursor:pointer;font-size:12px">// reset</button></div>'
+ +objs+'</div></section>'
+ +'<section><div class="toolbar"><div class="search"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>'
+ +'<input id="q" placeholder="BUSCAR ALVO: empresa, vaga, área…" value="'+esc(state.query)+'"/></div></div>'
+ +'<div class="toolbar" style="margin-top:10px">'+chips+'<button class="chip star'+(state.onlyStar?' on':'')+'" id="starbtn">★ Prioridade</button></div></section>'
+ +'<section>'+list+'</section>'
+ +'<footer>// buscas abrem direto nos sites — confirme prazos e elegibilidade<br>// alvos curados em 17.06.2026 · 100% offline</footer>'
+ +'</main>';
+ bind();
+}
+function stat4(v,l,s,color,pre){return '<div class="stat bracket"><span class="bl"></span><span class="br"></span><div class="v" style="color:'+color+'">'+(pre||"")+v+'</div><div class="l stencil">'+l+'</div><div class="s">'+s+'</div></div>';}
+
+/* ===== EVENTOS ===== */
+function bind(){
+ var q=document.getElementById("q");
+ if(q)q.oninput=function(){state.query=this.value; var pos=this.selectionStart; render(); var nq=document.getElementById("q"); nq.focus(); try{nq.setSelectionRange(pos,pos);}catch(e){}};
+ document.querySelectorAll("[data-tipo]").forEach(function(b){b.onclick=function(){state.tipo=this.getAttribute("data-tipo");render();};});
+ var sb=document.getElementById("starbtn"); if(sb)sb.onclick=function(){state.onlyStar=!state.onlyStar;render();};
+ document.querySelectorAll("[data-obj]").forEach(function(r){r.onclick=function(){var i=+this.getAttribute("data-obj");state.routine[i]=!state.routine[i];save("ryu:routine",state.routine);render();};});
+ var ro=document.getElementById("resetobj"); if(ro)ro.onclick=function(){state.routine=ROUTINE.map(function(){return false;});save("ryu:routine",state.routine);render();};
+ document.querySelectorAll("select[data-id]").forEach(function(s){s.onchange=function(){state.statuses[this.getAttribute("data-id")]=this.value;save("ryu:statuses",state.statuses);render();};});
+}
+
+/* ===== GATE ===== */
+function unlock(){document.getElementById("gate").classList.add("hidden");document.getElementById("app").classList.remove("hidden");render();}
+function ssGet(k){try{return sessionStorage.getItem(k);}catch(e){return null;}}
+function ssSet(k,v){try{sessionStorage.setItem(k,v);}catch(e){}}
+function tryPw(){
+  var raw=document.getElementById("pw").value||"";
+  var v=raw.trim();
+  var ok = !PASSCODE || v===PASSCODE
+        || v.toLowerCase()===PASSCODE.toLowerCase()
+        || v.replace(/\s+/g,"")===PASSCODE;
+  if(ok){ssSet("ryu:ok","1");unlock();}
+  else{document.getElementById("pwerr").classList.remove("hidden");}
+}
+document.getElementById("pwbtn").onclick=tryPw;
+var _sp=document.getElementById("showpw"); if(_sp)_sp.onchange=function(){var p=document.getElementById("pw");p.type=this.checked?"text":"password";p.focus();};
+document.getElementById("pw").addEventListener("input",function(){document.getElementById("pwerr").classList.add("hidden");});
+document.getElementById("pw").addEventListener("keydown",function(e){if(e.key==="Enter"){e.preventDefault();tryPw();}});
+if(!PASSCODE||ssGet("ryu:ok")==="1"){unlock();}
+</script>
+</body>
+</html>
