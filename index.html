@@ -190,7 +190,7 @@ var ROUTINE = [
 
 var SKILLS = ["Power BI","Excel avançado","Python","SQL","Budget & Forecast","Pricing / ASP","Análise de crédito","Inglês C2"];
 var SALARY = [["Estágio","R$ 1,5k – 2,8k"],["Analista Jr","R$ 3,8k – 6,5k"],["Trainee","R$ 7k – 10k"]];
-var PROFILE_TXT = "Estudante de Economia no IBMEC (2024–2028), estagiando em FP&A na Ferring: orçamento, forecast, dashboards em Power BI e análise de pricing/ASP. Base em Python e SQL, inglês C2. Foco em planejamento financeiro, BI e controladoria.";
+var PROFILE_TXT = "Estudante de Economia no IBMEC (2024–2028), estagiando em Finanças na Ferring: análise de crédito, pricing/ASP, dashboards em Power BI e suporte a orçamento. Base em Python e SQL, inglês C2. Foco em análise financeira, planejamento e BI.";
 
 /* ===================== TEMA / MAPS ===================== */
 var TIPOC = {"Estágio":"var(--estagio)","Júnior":"var(--junior)","Trainee":"var(--trainee)"};
@@ -311,7 +311,7 @@ function screenVagas(){
   return '<div class="screen fade-in">'
    +'<div class="hero"><div class="hero-top"><img class="avatar" src="'+AVATAR+'" alt="Ryu"/>'
    +'<div><div class="hello">Olá, <b>Ryu</b> 👋</div><h1>Suas vagas de hoje</h1></div></div>'
-   +'<div class="hero-sub">Economia IBMEC · FP&A na Ferring · São Paulo</div>'
+   +'<div class="hero-sub">Economia IBMEC · Finanças na Ferring · São Paulo</div>'
    +'<div class="hero-stats">'+hs("Estágio",c["Estágio"],"Estágios")+hs("Júnior",c["Júnior"],"Júnior")+hs("Trainee",c["Trainee"],"Trainee")+hs("cand",c.cand,"A candidatar")+'</div>'
    +radarChip+'</div>'
    +'<div class="search">'+ic(I_SEARCH,18)+'<input id="q" placeholder="Buscar empresa, vaga, área…" value="'+esc(st.query)+'"/></div>'
@@ -340,7 +340,7 @@ function screenPerfil(){
   return '<div class="screen fade-in">'
    +'<div class="pcard"><img class="pavatar" src="'+AVATAR+'" alt="Ryu"/>'
    +'<div class="pname">Enzo Ryu Yamada</div>'
-   +'<div class="prole">Estagiário FP&A · Ferring<br>Economia · IBMEC (2024–2028)</div></div>'
+   +'<div class="prole">Estagiário de Finanças · Ferring<br>Economia · IBMEC (2024–2028)</div></div>'
    +'<div class="pblock"><h4>Como o radar funciona</h4><div class="how">'
      +'<div class="hrow"><span class="hico" style="background:var(--alto)">'+ic(I_CAL,16)+'</span><div><b>Toda sexta, no fim do dia (17h)</b><p>Vagas novas entram sozinhas no painel — você não precisa fazer nada.</p></div></div>'
      +'<div class="hrow"><span class="hico" style="background:var(--estagio)">'+ic(I_RADAR,16)+'</span><div><b>Busca automática via APIs</b><p>Fontes oficiais consultadas a cada rodada:</p><div class="src"><span class="srcpill">Adzuna</span><span class="srcpill">Jooble</span></div></div></div>'
