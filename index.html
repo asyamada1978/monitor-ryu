@@ -112,6 +112,21 @@ select:focus{outline:none;border-color:var(--primary)}
 .src{display:flex;gap:7px;margin-top:8px;flex-wrap:wrap}
 .srcpill{font-size:11.5px;font-weight:700;color:var(--ink2);background:#F3F5F9;border:1px solid var(--line);border-radius:999px;padding:4px 10px}
 
+.hstat{cursor:pointer;transition:transform .12s ease, background .15s ease;user-select:none}
+.hstat:active{transform:scale(.95)}
+.hstat.on{background:rgba(255,255,255,.24);border-color:rgba(255,255,255,.55)}
+.radar-chip.loading{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.25);color:#C7D2FE}
+.spin{width:11px;height:11px;border-radius:50%;border:2px solid rgba(255,255,255,.3);border-top-color:#C7D2FE;display:inline-block;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.sorthint{display:flex;align-items:center;gap:5px;font-size:11.5px;color:var(--muted);margin:16px 2px 0;font-weight:600}
+.sorthint svg{color:var(--junior)}
+.clearbtn{margin-top:12px;background:var(--primary);color:#fff;border:0;font-size:13px;font-weight:700;padding:9px 16px;border-radius:11px;cursor:pointer}
+.jcard{transition:transform .12s ease, box-shadow .12s ease}
+.jcard:active{transform:scale(.995);box-shadow:0 4px 14px rgba(16,24,40,.08)}
+.chip:active{transform:scale(.94)}
+.lnk:active{transform:scale(.99)}
+.open-btn:active{transform:scale(.96)}
+
 /* ---------- BOTTOM NAV ---------- */
 .nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:var(--maxw);
   background:rgba(255,255,255,.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
@@ -133,20 +148,19 @@ var AVATAR = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBAUEBAY
 
 /* ===================== DADOS ===================== */
 var JOBS = [
- {id:"abbott",tipo:"Estágio",empresa:"Abbott Laboratories",vaga:"Estágio em Planejamento e Análise Financeira (FP&A) — Eletrofisiologia",area:"FP&A",local:"São Paulo · Híbrido",fit:"Alto",elig:"Elegível (cursando)",why:"Farma/dispositivos médicos = mesmo setor da Ferring. Currículo transfere direto.",link:"https://br.indeed.com/q-est%C3%A1gio-fp&a-l-s%C3%A3o-paulo,-sp-vagas.html",star:true},
- {id:"fleury",tipo:"Estágio",empresa:"Grupo Fleury",vaga:"Programa de Estágio 2026 — Planejamento Financeiro / BI",area:"FP&A · BI",local:"São Paulo",fit:"Alto",elig:"Elegível (cursando)",why:"Saúde + viés de BI casa com o Power BI dele.",link:"https://www.glassdoor.com.br/Vaga/s%C3%A3o-paulo-estagi%C3%A1rio-financeiro-vagas-SRCH_IL.0,9_IC2479061_KO10,31.htm",star:true},
- {id:"rumo",tipo:"Estágio",empresa:"Rumo Logística",vaga:"Estágio em FP&A (Planejamento Financeiro)",area:"FP&A",local:"São Paulo",fit:"Alto",elig:"Elegível (cursando)",why:"Modelos financeiros e reports mensais. Encaixa com budget/forecast.",link:"https://br.indeed.com/q-est%C3%A1gio-fp&a-l-s%C3%A3o-paulo,-sp-vagas.html",star:true},
- {id:"topico",tipo:"Estágio",empresa:"Tópico (via Bettha)",vaga:"Estágio em FP&A — Análises e Estratégia",area:"FP&A",local:"Embu · Híbrido",fit:"Médio-Alto",elig:"Elegível (cursando)",why:"Power BI citado como diferencial — ponto forte dele.",link:"https://br.indeed.com/q-est%C3%A1gio-fp&a-l-s%C3%A3o-paulo,-sp-vagas.html",star:false},
- {id:"bioglycols",tipo:"Estágio",empresa:"BIOGLYCOLS",vaga:"Estagiário de Finanças (FP&A e Tesouraria)",area:"FP&A",local:"São Paulo",fit:"Médio",elig:"Elegível (cursando)",why:"Abre também tesouraria; experiência de crédito ajuda.",link:"https://br.indeed.com/q-est%C3%A1gio-fp&a-l-s%C3%A3o-paulo,-sp-vagas.html",star:false},
- {id:"boticario",tipo:"Júnior",empresa:"Grupo Boticário",vaga:"Analista FP&A I (temporária / remota)",area:"FP&A",local:"Remoto",fit:"Médio-Alto",elig:"Confirmar (cursando?)",why:"Temporária + remota costuma ser mais flexível com diploma.",link:"https://br.indeed.com/q-analista-planejamento-financeiro-fp&a-vagas.html",star:false},
- {id:"comgas",tipo:"Júnior",empresa:"Comgás",vaga:"Analista Financeiro JR (FP&A)",area:"FP&A",local:"São Paulo",fit:"Médio-Alto",elig:"Confirmar (pede formado?)",why:"Ciclo completo de Budget, Forecast e Long Range Plan.",link:"https://br.indeed.com/q-analista-planejamento-financeiro-fp&a-vagas.html",star:false},
- {id:"elo",tipo:"Júnior",empresa:"Elo (pagamentos)",vaga:"Analista de Planejamento Financeiro Jr (FP&A)",area:"FP&A",local:"Barueri",fit:"Médio",elig:"Confirmar (pede formado?)",why:"Fechamento contábil e análise de DRE gerencial.",link:"https://vempraelo.gupy.io/",star:false},
- {id:"b3",tipo:"Júnior",empresa:"B3",vaga:"Analista Financeiro Júnior (Faturamento)",area:"Financeiro",local:"São Paulo",fit:"Médio",elig:"Provável formação completa",why:"Cobrança, conciliação, KPIs. Pede SAP. Marca forte.",link:"https://vagas.b3.com.br/job/S%C3%A3o-Paulo-7469-Analista-Financeiro-J%C3%BAnior-S%C3%A3o/1331745262/",star:false},
- {id:"ipiranga",tipo:"Júnior",empresa:"Ipiranga",vaga:"Analista Jr — suporte FP&A / Custos",area:"FP&A · Custos",local:"São Paulo",fit:"Médio",elig:"Confirmar (pede formado?)",why:"Suporte a FP&A para projeções e pricing — casa com a análise de ASP.",link:"https://br.indeed.com/q-analista-fp&a-jr-l-s%C3%A3o-paulo,-sp-vagas.html",star:false},
- {id:"roberthalf",tipo:"Júnior",empresa:"Via Robert Half",vaga:"Analista Plan. Financeiro Jr / FP&A (Life Sciences)",area:"FP&A",local:"São Paulo",fit:"Médio",elig:"Pede formação completa",why:"Recrutadora com várias vagas Jr (uma é farma). Cadastrar currículo.",link:"https://www.roberthalf.com/br/pt/vagas/sao-paulo/analista-financeiro-junior",star:false},
- {id:"itau",tipo:"Trainee",empresa:"Itaú Unibanco",vaga:"Trainee — Trilha Finanças (FP&A, Controladoria)",area:"FP&A",local:"São Paulo",fit:"Alto",elig:"Só após formar (2028)",why:"Trilha de Finanças exige inglês avançado (ele tem C2).",link:"https://traineeitauunibanco.com.br/",star:false},
- {id:"nestle",tipo:"Trainee",empresa:"Nestlé",vaga:"Programa Trainee — Trilha Finanças",area:"FP&A",local:"São Paulo · BR",fit:"Alto",elig:"Só após formar (2028)",why:"Rotação por FP&A, Controladoria, Tax e Tesouraria.",link:"https://www.nestlecomvoce.com.br/programadetrainee",star:false},
- {id:"santander",tipo:"Trainee",empresa:"Santander",vaga:"Graduate / Futuros Talentos (finanças)",area:"Finanças",local:"São Paulo · BR",fit:"Médio-Alto",elig:"Só após formar (2028)",why:"Banco global; trilhas variadas em finanças.",link:"https://sejatrainee.com.br/trainee/",star:false}
+ {id:"abbott",tipo:"Estágio",empresa:"Abbott Laboratories",vaga:"Estágio / vagas de FP&A e Finanças",area:"FP&A",local:"São Paulo",fit:"Alto",elig:"Elegível (cursando)",why:"Farma/dispositivos = mesmo setor da Ferring. Abra o portal e filtre por Financeiro/Estágio.",link:"https://www.abbottbrasil.com.br/carreiras.html",star:true},
+ {id:"fleury",tipo:"Estágio",empresa:"Grupo Fleury",vaga:"Programa de Estágio — Financeiro / BI",area:"FP&A · BI",local:"São Paulo",fit:"Alto",elig:"Elegível (cursando)",why:"Saúde + forte em BI (teve estágio de BI no ar). Casa com o Power BI dele.",link:"https://carreiras.grupofleury.com.br/",star:true},
+ {id:"rumo",tipo:"Estágio",empresa:"Rumo Logística",vaga:"Estágio / Analista de Planejamento Jr",area:"Planejamento",local:"São Paulo",fit:"Alto",elig:"Elegível (cursando)",why:"Grupo Cosan; planejamento e modelos financeiros. Costuma ter Analista Planejamento Jr.",link:"https://rumolog.gupy.io/",star:true},
+ {id:"comgas-est",tipo:"Estágio",empresa:"Comgás",vaga:"Programa de Estágio (Financeiro)",area:"Financeiro",local:"São Paulo",fit:"Médio-Alto",elig:"Elegível (cursando)",why:"Programa de estágio estruturado (Compass/Cosan). Filtre por Financeiro.",link:"https://estagiocomgas.gupy.io/",star:false},
+ {id:"boticario",tipo:"Júnior",empresa:"Grupo Boticário",vaga:"Analista FP&A / Planejamento",area:"FP&A",local:"São Paulo · Remoto",fit:"Médio-Alto",elig:"Confirmar elegibilidade",why:"Valoriza BI/SQL/Python em finanças. Eleita melhor do varejo p/ trabalhar.",link:"https://grupoboticario.gupy.io/",star:false},
+ {id:"comgas",tipo:"Júnior",empresa:"Comgás",vaga:"Analista Financeiro Jr (FP&A)",area:"FP&A",local:"São Paulo",fit:"Médio-Alto",elig:"Confirmar (pede formado?)",why:"Ciclo de Budget, Forecast e Long Range Plan.",link:"https://vemsercomgas.gupy.io/",star:false},
+ {id:"elo",tipo:"Júnior",empresa:"Elo (pagamentos)",vaga:"Analista de Planejamento Financeiro Jr",area:"FP&A",local:"Barueri",fit:"Médio",elig:"Confirmar (pede formado?)",why:"Fechamento e análise de DRE gerencial.",link:"https://vempraelo.gupy.io/",star:false},
+ {id:"b3",tipo:"Júnior",empresa:"B3",vaga:"Analista Financeiro Júnior",area:"Financeiro",local:"São Paulo",fit:"Médio",elig:"Provável formação completa",why:"Cobrança, conciliação, KPIs. Marca forte no mercado financeiro.",link:"https://vagas.b3.com.br/",star:false},
+ {id:"ipiranga",tipo:"Júnior",empresa:"Ipiranga",vaga:"Analista Jr — Finanças / Planejamento",area:"FP&A · Custos",local:"São Paulo",fit:"Médio",elig:"Confirmar (pede formado?)",why:"Grupo Ultra; suporte a FP&A, projeções e custos.",link:"https://ipiranga.gupy.io/",star:false},
+ {id:"roberthalf",tipo:"Júnior",empresa:"Robert Half",vaga:"Analista Financeiro Jr / FP&A (várias)",area:"FP&A",local:"São Paulo",fit:"Médio",elig:"Pede formação completa",why:"Recrutadora especializada em Finanças; várias vagas Jr atualizadas todo dia.",link:"https://www.roberthalf.com/br/pt/vagas",star:false},
+ {id:"itau",tipo:"Trainee",empresa:"Itaú Unibanco",vaga:"Trainee — Trilha Finanças",area:"FP&A",local:"São Paulo",fit:"Alto",elig:"Só após formar (2028)",why:"Trilha de Finanças; exige inglês avançado (ele tem C2).",link:"https://traineeitauunibanco.com.br/",star:false},
+ {id:"nestle",tipo:"Trainee",empresa:"Nestlé",vaga:"Programa Trainee — Finanças",area:"FP&A",local:"São Paulo · BR",fit:"Alto",elig:"Só após formar (2028)",why:"Rotação por FP&A, Controladoria, Tax e Tesouraria.",link:"https://www.nestlecomvoce.com.br/",star:false},
+ {id:"santander",tipo:"Trainee",empresa:"Santander",vaga:"Graduate / Trainee (Finanças)",area:"Finanças",local:"São Paulo · BR",fit:"Médio-Alto",elig:"Só após formar (2028)",why:"Banco global; trilhas em finanças e programas jovens.",link:"https://www.santander.com.br/carreiras",star:false}
 ];
 
 var LAUNCHERS = [
@@ -183,6 +197,13 @@ var TIPOC = {"Estágio":"var(--estagio)","Júnior":"var(--junior)","Trainee":"va
 var FITC = {"Alto":"var(--alto)","Médio-Alto":"var(--medioalto)","Médio":"var(--medio)"};
 var FITPCT = {"Alto":92,"Médio-Alto":70,"Médio":50};
 var STATUS_OPTS = ["A pesquisar","A candidatar","Candidatado","Em processo","Entrevista","Descartado","Acompanhar (futuro)"];
+function statColor(s){
+  if(s==="A candidatar")return {b:"#10B981",t:"#047857",bg:"#ECFDF5"};
+  if(s==="Candidatado"||s==="Em processo"||s==="Entrevista")return {b:"#0EA5E9",t:"#0369A1",bg:"#F0F9FF"};
+  if(s==="Descartado")return {b:"#E5E7EB",t:"#9CA3AF",bg:"#F9FAFB"};
+  if(s==="Acompanhar (futuro)")return {b:"#8B5CF6",t:"#6D28D9",bg:"#F5F3FF"};
+  return {b:"#EAEDF3",t:"#1F2937",bg:"#FFFFFF"};
+}
 
 /* ===================== ESTADO ===================== */
 function load(k,f){try{var v=localStorage.getItem(k);return v?JSON.parse(v):f;}catch(e){return f;}}
@@ -190,7 +211,7 @@ function save(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
 function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
 var defS={}; JOBS.forEach(function(j){defS[j.id]="A pesquisar";});
 JOBS.forEach(function(j){ if(j.star)defS[j.id]="A candidatar"; });
-var st={ tab:"vagas", query:"", tipo:"Todos",
+var st={ tab:"vagas", query:"", tipo:"Todos", onlyCand:false, loading:true,
   statuses:load("ryu:statuses",defS), routine:load("ryu:routine",ROUTINE.map(function(){return false;})),
   live:[], updated:"" };
 function status(id){return st.statuses[id]||"A pesquisar";}
@@ -207,6 +228,7 @@ function counts(){var c={"Estágio":0,"Júnior":0,"Trainee":0,cand:0};
 function filtered(){var q=st.query.trim().toLowerCase();
   return allJobs().filter(function(j){
     if(st.tipo!=="Todos"&&j.tipo!==st.tipo)return false;
+    if(st.onlyCand&&status(j.id)!=="A candidatar")return false;
     if(!q)return true;
     return (j.empresa+" "+j.vaga+" "+(j.area||"")+" "+j.local).toLowerCase().indexOf(q)>=0;});}
 
@@ -255,7 +277,7 @@ function fitRing(pct,color){
 
 /* ===================== TELAS ===================== */
 function jobCard(j,rec){
-  var col=TIPOC[j.tipo]||"#888", fc=FITC[j.fit]||"var(--medio)", pct=fitPct(j);
+  var col=TIPOC[j.tipo]||"#888", fc=FITC[j.fit]||"var(--medio)", pct=fitPct(j), sc=statColor(status(j.id));
   return '<div class="jcard">'
    +'<div class="jtop"><div style="min-width:0">'
    +'<span class="tipo-tag" style="color:'+col+';background:'+col+'14">'+esc(j.tipo)+(j.star?' · ★':'')+'</span>'+(rec?'<span class="rec">↑ recomendada</span>':'')
@@ -265,7 +287,7 @@ function jobCard(j,rec){
    +'<div class="why">'+esc(j.why)+'</div>'
    +'<div class="elig">⚠ '+esc(j.elig)+'</div>'
    +'<div class="jbtm"><div class="statuswrap"><label>Status</label>'
-   +'<select data-id="'+esc(j.id)+'">'+STATUS_OPTS.map(function(o){return '<option'+(status(j.id)===o?' selected':'')+'>'+esc(o)+'</option>';}).join('')+'</select></div>'
+   +'<select data-id="'+esc(j.id)+'" style="border-color:'+sc.b+';color:'+sc.t+';background:'+sc.bg+'">'+STATUS_OPTS.map(function(o){return '<option'+(status(j.id)===o?' selected':'')+'>'+esc(o)+'</option>';}).join('')+'</select></div>'
    +'<a class="open-btn" href="'+esc(j.link)+'" target="_blank" rel="noopener noreferrer">Abrir '+ic(I_EXT,15)+'</a></div>'
    +'</div>';
 }
@@ -273,23 +295,28 @@ function jobCard(j,rec){
 function screenVagas(){
   var c=counts(), m=learn();
   var list=filtered().slice().sort(function(a,b){return (fitPct(b)+9*affinity(b,m))-(fitPct(a)+9*affinity(a,m));});
-  var radarChip = st.live.length
-    ? '<div class="radar-chip"><span class="dot"></span> Radar: '+st.live.length+' vagas novas · '+esc(st.updated)+'</div>'
-    : '<div class="radar-chip"><span class="dot"></span> Radar ativo · atualiza toda sexta</div>';
-  var cards = list.length ? list.map(function(j){return jobCard(j, affinity(j,m)>0.5 && status(j.id)==="A pesquisar");}).join('') : '<div class="empty">Nenhuma vaga com esse filtro.</div>';
+  var radarChip = st.loading
+    ? '<div class="radar-chip loading"><span class="spin"></span> Sincronizando radar…</div>'
+    : (st.live.length
+      ? '<div class="radar-chip"><span class="dot"></span> Radar: '+st.live.length+' vagas novas · '+esc(st.updated)+'</div>'
+      : '<div class="radar-chip"><span class="dot"></span> Radar ativo · atualiza sexta às 17h</div>');
+  function hs(key,n,label){var on=(key==="cand"?st.onlyCand:(st.tipo===key&&!st.onlyCand));
+    return '<div class="hstat'+(on?' on':'')+'" data-hstat="'+key+'"><div class="n">'+n+'</div><div class="l">'+label+'</div></div>';}
+  var learned=(m.P||m.N);
+  var hint = list.length ? '<div class="sorthint">'+ic(I_SPARK,13)+' Ordenado por aderência'+(learned?' + seu feedback':'')+'</div>' : '';
+  var clear = (st.query||st.tipo!=="Todos"||st.onlyCand) ? '<br><button class="clearbtn" id="clear">Limpar filtros</button>' : '';
+  var cards = list.length
+    ? list.map(function(j){return jobCard(j, affinity(j,m)>0.5 && status(j.id)==="A pesquisar");}).join('')
+    : '<div class="empty">Nenhuma vaga com esse filtro.'+clear+'</div>';
   return '<div class="screen fade-in">'
    +'<div class="hero"><div class="hero-top"><img class="avatar" src="'+AVATAR+'" alt="Ryu"/>'
    +'<div><div class="hello">Olá, <b>Ryu</b> 👋</div><h1>Suas vagas de hoje</h1></div></div>'
    +'<div class="hero-sub">Economia IBMEC · FP&A na Ferring · São Paulo</div>'
-   +'<div class="hero-stats">'
-   +'<div class="hstat"><div class="n">'+c["Estágio"]+'</div><div class="l">Estágios</div></div>'
-   +'<div class="hstat"><div class="n">'+c["Júnior"]+'</div><div class="l">Júnior</div></div>'
-   +'<div class="hstat"><div class="n">'+c["Trainee"]+'</div><div class="l">Trainee</div></div>'
-   +'<div class="hstat"><div class="n">'+c.cand+'</div><div class="l">A candidatar</div></div></div>'
+   +'<div class="hero-stats">'+hs("Estágio",c["Estágio"],"Estágios")+hs("Júnior",c["Júnior"],"Júnior")+hs("Trainee",c["Trainee"],"Trainee")+hs("cand",c.cand,"A candidatar")+'</div>'
    +radarChip+'</div>'
    +'<div class="search">'+ic(I_SEARCH,18)+'<input id="q" placeholder="Buscar empresa, vaga, área…" value="'+esc(st.query)+'"/></div>'
-   +'<div class="chips">'+["Todos","Estágio","Júnior","Trainee"].map(function(t){return '<button class="chip'+(st.tipo===t?' on':'')+'" data-tipo="'+t+'">'+t+'</button>';}).join('')+'</div>'
-   +cards+'<div class="foot">Toque em “Abrir” para ir à vaga. Confirme prazos e elegibilidade no site.</div>'
+   +'<div class="chips">'+["Todos","Estágio","Júnior","Trainee"].map(function(t){return '<button class="chip'+(st.tipo===t&&!st.onlyCand?' on':'')+'" data-tipo="'+t+'">'+t+'</button>';}).join('')+'</div>'
+   +hint+cards+'<div class="foot">Toque em “Abrir” para ir à vaga. Cards curados abrem o site oficial; vagas do radar abrem o anúncio direto.</div>'
    +'</div>';
 }
 
@@ -342,7 +369,12 @@ function bind(){
   document.querySelectorAll("[data-tab]").forEach(function(b){b.onclick=function(){st.tab=this.getAttribute("data-tab");window.scrollTo(0,0);render();};});
   var q=document.getElementById("q");
   if(q)q.oninput=function(){st.query=this.value;var p=this.selectionStart;render();var n=document.getElementById("q");if(n){n.focus();try{n.setSelectionRange(p,p);}catch(e){}}};
-  document.querySelectorAll("[data-tipo]").forEach(function(b){b.onclick=function(){st.tipo=this.getAttribute("data-tipo");render();};});
+  document.querySelectorAll("[data-tipo]").forEach(function(b){b.onclick=function(){st.tipo=this.getAttribute("data-tipo");st.onlyCand=false;render();};});
+  document.querySelectorAll("[data-hstat]").forEach(function(b){b.onclick=function(){var k=this.getAttribute("data-hstat");
+    if(k==="cand"){st.onlyCand=!st.onlyCand;st.tipo="Todos";}else{st.tipo=(st.tipo===k&&!st.onlyCand)?"Todos":k;st.onlyCand=false;}
+    window.scrollTo(0,0);render();};});
+  var cl=document.getElementById("clear");
+  if(cl)cl.onclick=function(){st.query="";st.tipo="Todos";st.onlyCand=false;render();};
   document.querySelectorAll("select[data-id]").forEach(function(s){s.onchange=function(){st.statuses[this.getAttribute("data-id")]=this.value;save("ryu:statuses",st.statuses);render();};});
   document.querySelectorAll("[data-obj]").forEach(function(r){r.onclick=function(){var i=+this.getAttribute("data-obj");st.routine[i]=!st.routine[i];save("ryu:routine",st.routine);render();};});
 }
@@ -351,8 +383,8 @@ function bind(){
 render();
 fetch("./jobs.json?ts="+Date.now(),{cache:"no-store"})
  .then(function(r){return r.ok?r.json():null;})
- .then(function(d){if(d&&d.jobs&&d.jobs.length){st.live=d.jobs;st.updated=d.updated_at||"";render();}})
- .catch(function(){});
+ .then(function(d){st.loading=false;if(d&&d.jobs&&d.jobs.length){st.live=d.jobs;st.updated=d.updated_at||"";}render();})
+ .catch(function(){st.loading=false;render();});
 </script>
 </body>
 </html>

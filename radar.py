@@ -39,10 +39,12 @@ SKILLS = ["fpa", "planejamento financeiro", "orcamento", "budget", "forecast",
 # Buscas (ampliadas)
 QUERIES = [
     "estagio financeiro", "estagio FP&A", "estagio planejamento financeiro",
-    "estagio controladoria", "estagio business intelligence", "estagio economia",
-    "analista financeiro junior", "analista de planejamento financeiro",
-    "analista FP&A", "controladoria junior", "analista de custos junior",
-    "assistente financeiro", "planejamento financeiro junior",
+    "estagio controladoria", "estagio business intelligence",
+    "analista financeiro junior", "analista de planejamento financeiro", "analista FP&A",
+    "controladoria junior", "planejamento financeiro junior",
+    "analista de planejamento junior", "estagio planejamento",
+    "estagio marketing digital", "analista de marketing junior",
+    "estagio comercial", "analista comercial junior",
 ]
 
 ROLE_KEYWORDS = ["estagio", "estagiario", "trainee", "analista financeiro",
@@ -55,6 +57,25 @@ NEGATIVE_KEYWORDS = ["senior", "pleno", "gerente", "coordenador", "diretor",
                      "especialista", "supervisor", "head ", "manager", "lead "]
 LOCATION_OK = ["sao paulo", "sp", "remoto", "remote", "hibrido", "brasil", "barueri",
                "osasco", "guarulhos", "embu", "santo amaro", "alphaville"]
+
+# Precisão: exige nível certo no título + domínio financeiro no texto
+LEVEL_TITLE = ["estag", "trainee", "junior", "jr", "assistente", "analista", "aprendiz", "intern"]
+FINANCE_KW = ["financ", "fp&a", "fpa", "fp & a", "planejamento financ", "orcament", "budget",
+              "forecast", "controladoria", "tesouraria", "custos", "analise financ",
+              "business intelligence", "inteligencia de negocio", "projec", "contabil", "economia",
+              "marketing", "comercial", "planejamento", "demanda"]
+# domínios que NÃO são do Enzo — se aparecem no título sem termo-alvo, descarta
+NEG_TITLE = ["recursos humanos", "juridic", "logistic", "suprimentos", "compras",
+             "atendimento", "enfermagem", "laborator", "clinic", "design",
+             "varejo", "manuten", "seguranca do trabalho", "produto", "ti ",
+             "infraestrutura", "obras"]
+FINANCE_TITLE = ["financ", "fp&a", "fpa", "fp & a", "planejamento", "orcament", "budget",
+                 "forecast", "controladoria", "tesouraria", "custos", "contabil", "economia",
+                 "business intelligence", "inteligencia de negocio", "projec",
+                 "marketing", "comercial", "demanda"]
+
+SESSION = requests.Session()
+SESSION.headers.update({"User-Agent": "monitor-ryu/1.0"})
 
 ADZUNA_URL = "https://api.adzuna.com/v1/api/jobs/br/search/{page}"
 JOOBLE_URL = "https://jooble.org/api/{key}"
@@ -83,12 +104,21 @@ def detect_tipo(title):
 
 
 def qualifies(job):
-    text = norm(job["title"] + " " + job["company"] + " " + job["description"])
     title = norm(job["title"])
-    if not any(k in text for k in ROLE_KEYWORDS):
+    text = norm(job["title"] + " " + job["company"] + " " + job["description"])
+    # 1) precisa ter o NÍVEL certo no título (estágio/júnior/analista/assistente/trainee)
+    if not any(k in title for k in LEVEL_TITLE):
         return False
+    # 2) precisa ser do DOMÍNIO financeiro/BI
+    if not any(k in text for k in FINANCE_KW):
+        return False
+    # 3) corta sênior/pleno/gestão
     if any(k in title for k in NEGATIVE_KEYWORDS):
         return False
+    # 3b) corta outros domínios (marketing/vendas/RH/etc.) quando o título não é financeiro
+    if any(k in title for k in NEG_TITLE) and not any(k in title for k in FINANCE_TITLE):
+        return False
+    # 4) localização compatível (SP/remoto/híbrido)
     loc = norm(job["location"])
     if loc and not any(k in loc for k in LOCATION_OK):
         return False
@@ -101,7 +131,7 @@ def fetch_adzuna(app_id, app_key):
     for q in QUERIES:
         for page in range(1, ADZUNA_PAGES + 1):
             try:
-                r = requests.get(
+                r = SESSION.get(
                     ADZUNA_URL.format(page=page),
                     params={"app_id": app_id, "app_key": app_key, "what": q,
                             "where": "São Paulo", "results_per_page": PER_PAGE,
@@ -137,7 +167,7 @@ def fetch_jooble(key):
     kw = "estágio financeiro, FP&A, planejamento financeiro, analista financeiro júnior, controladoria, business intelligence"
     for page in ("1", "2"):
         try:
-            r = requests.post(JOOBLE_URL.format(key=key),
+            r = SESSION.post(JOOBLE_URL.format(key=key),
                               json={"keywords": kw, "location": "São Paulo", "page": page},
                               timeout=25)
             r.raise_for_status()
@@ -187,6 +217,15 @@ def score(jobs):
     sim = cosine_similarity(tfidf[0:1], tfidf[1:]).ravel()
     if sim.max() > sim.min():
         sim = (sim - sim.min()) / (sim.max() - sim.min())
+    # boost: termos-alvo no título + preferência leve por estágio (foco do Enzo agora)
+    HIGH = ["fp&a", "fpa", "planejamento financ", "controladoria", "orcament", "budget",
+            "forecast", "estagio financ", "analise financ", "business intelligence"]
+    for i, j in enumerate(jobs):
+        t = norm(j["title"])
+        b = 0.12 if any(k in t for k in HIGH) else 0.0
+        if "estag" in t:
+            b += 0.05
+        sim[i] = min(1.0, sim[i] + b)
     for j, s in zip(jobs, sim):
         j["score"] = float(round(s, 4))
     jobs.sort(key=lambda x: x["score"], reverse=True)
